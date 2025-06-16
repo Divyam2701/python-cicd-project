@@ -1,0 +1,28 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo set version and release date
+      - echo "$COMMIT_HASH | `date`" > version.txt
+      - echo Building the Docker image...
+      - docker build -t python-ml .
+      - docker tag python-ml $ECR_REPOSITORY_URI:$IMAGE_TAG
+      - docker tag python-ml $ECR_REPOSITORY_URI:latest
+  post_build:
+    commands:
+      - echo Build started on `date`
+      - echo Pushing the Docker images...
+      - docker push $ECR_REPOSITORY_URI:latest
+      - docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
+      - printf '{"Name":"python-ml","ImageURI":"%s:%s"}' $ECR_REPOSITORY_URI $IMAGE_TAG > imageDetail.json
+      - cat imageDetail.json
+      - echo Build completed on `date`
+
