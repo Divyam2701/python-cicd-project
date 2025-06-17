@@ -1,5 +1,5 @@
 import io
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from PyPDF2 import PdfReader, errors
@@ -36,7 +36,7 @@ client.recreate_collection(
 )
 
 # --- API Routes ---
-@app.post("/upload/")
+@app.post("/upload")
 async def upload(file: UploadFile = File(...)):
     try:
         content = await file.read()
@@ -62,7 +62,7 @@ async def upload(file: UploadFile = File(...)):
 class Query(BaseModel):
     question: str
 
-@app.post("/ask/")
+@app.post("/ask")
 async def ask(query: Query):
     try:
         retriever = Qdrant(client=client, collection_name=collection_name).as_retriever()
@@ -76,9 +76,9 @@ async def ask(query: Query):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
-# Serve index.html at the root
-@app.get("/")
-async def root():
+# Serve index.html at the root for GET and POST
+@app.api_route("/", methods=["GET", "POST"])
+async def root(request: Request):
     return FileResponse("index.html")
 
 # --- Lambda Adapter ---
