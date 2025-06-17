@@ -5,8 +5,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      # Ensure ECR_REPOSITORY_URI is set to repo only, without tag
-      - export ECR_REPOSITORY_URI=971937583465.dkr.ecr.us-west-1.amazonaws.com/python-ml
+      - export ECR_REPOSITORY_URI=971937583465.dkr.ecr.us-west-1.amazonaws.com/python-ml:latest
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
 
   build:
@@ -21,9 +20,10 @@ phases:
     commands:
       - echo Pushing the Docker image...
       - docker push $ECR_REPOSITORY_URI:latest
-      # Use imagedefinitions.json for CodePipeline ECS/Lambda deploy
       - printf '[{"name":"python-ml","imageUri":"%s:latest"}]' $ECR_REPOSITORY_URI > imagedefinitions.json
       - cat imagedefinitions.json
       - echo Build completed on `date`
+
+
 
 
