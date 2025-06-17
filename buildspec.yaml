@@ -26,12 +26,4 @@ phases:
       - cat imagedefinitions.json
       - echo Build completed on `date`
 
-artifacts:
-  files:
-    - imagedefinitions.json
-      - cat imagedefinitions.json
-      - echo Build completed on `date`
 
-artifacts:
-  files:
-    - imagedefinitions.json
