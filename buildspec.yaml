@@ -5,26 +5,33 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
+      # Ensure ECR_REPOSITORY_URI is set to repo only, without tag
+      - export ECR_REPOSITORY_URI=971937583465.dkr.ecr.us-west-1.amazonaws.com/python-ml
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
 
   build:
     commands:
       - echo Build started on `date`
-      - echo set version and release date
-      - echo "$COMMIT_HASH | $(date -u +%Y-%m-%dT%H:%M:%SZ)" > version.txt
       - echo Building the Docker image...
       - export DOCKER_BUILDKIT=0
       - docker build -t python-ml .
-      - docker tag python-ml $ECR_REPOSITORY_URI:$IMAGE_TAG
       - docker tag python-ml $ECR_REPOSITORY_URI:latest
 
   post_build:
     commands:
-      - echo Pushing the Docker images...
+      - echo Pushing the Docker image...
       - docker push $ECR_REPOSITORY_URI:latest
-      - docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
-      - printf '{"Name":"python-ml","ImageURI":"%s:%s"}' $ECR_REPOSITORY_URI $IMAGE_TAG > imageDetail.json
-      - cat imageDetail.json
+      # Use imagedefinitions.json for CodePipeline ECS/Lambda deploy
+      - printf '[{"name":"python-ml","imageUri":"%s:latest"}]' $ECR_REPOSITORY_URI > imagedefinitions.json
+      - cat imagedefinitions.json
       - echo Build completed on `date`
+
+artifacts:
+  files:
+    - imagedefinitions.json
+      - cat imagedefinitions.json
+      - echo Build completed on `date`
+
+artifacts:
+  files:
+    - imagedefinitions.json
