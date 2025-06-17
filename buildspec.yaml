@@ -14,12 +14,12 @@ phases:
       - echo Building the Docker image...
       - export DOCKER_BUILDKIT=0
       - docker build -t python-ml .
-      - docker tag python-ml $ECR_REPOSITORY_URI:latest
+      - docker tag python-ml $ECR_REPOSITORY_URI
 
   post_build:
     commands:
       - echo Pushing the Docker image...
-      - docker push $ECR_REPOSITORY_URI:latest
+      - docker push $ECR_REPOSITORY_URI
       - printf '[{"name":"python-ml","imageUri":"%s:latest"}]' $ECR_REPOSITORY_URI > imagedefinitions.json
       - cat imagedefinitions.json
       - echo Build completed on `date`
