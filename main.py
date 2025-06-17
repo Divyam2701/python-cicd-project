@@ -36,7 +36,7 @@ client.recreate_collection(
 )
 
 # --- API Routes ---
-@app.post("/upload")
+@app.post("/uploads")
 async def upload(file: UploadFile = File(...)):
     try:
         content = await file.read()
@@ -62,7 +62,7 @@ async def upload(file: UploadFile = File(...)):
 class Query(BaseModel):
     question: str
 
-@app.post("/ask")
+@app.post("/asked")
 async def ask(query: Query):
     try:
         retriever = Qdrant(client=client, collection_name=collection_name).as_retriever()
