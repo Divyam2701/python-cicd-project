@@ -23,7 +23,7 @@ phases:
       - printf '[{"name":"python-ml","imageUri"}]' $ECR_REPOSITORY_URI > imagedefinitions.json
       - cat imagedefinitions.json
       - echo Updating Lambda function to use the latest image...
-      - aws lambda update-function-code --function-name TicTacToeLambda --image-uri $ECR_REPOSITORY_URI:latest --region $AWS_DEFAULT_REGION
+      - aws lambda update-function-code --function-name TicTacToeLambda --image-uri $ECR_REPOSITORY_URI --region $AWS_DEFAULT_REGION
       - echo Build completed on `date`
 
 
