@@ -8,11 +8,11 @@ WORKDIR /var/task
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy source code, env file, and index.html
+# Copy source code and index.html
 COPY main.py .
-COPY .env .
 COPY index.html .
 
 
 # Set the handler (filename.function_name)
+
 CMD ["main.lambda_handler"]
